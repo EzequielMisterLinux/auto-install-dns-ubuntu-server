@@ -16,6 +16,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 STATIC_IP="10.0.2.15"
+URLNAME="mitiendasv.com"
 INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
 
 
@@ -56,22 +57,22 @@ options {
 EOF
 
 cat << EOF > /etc/bind/named.conf.local
-zone "storeworld.com" {
+zone "$URLNAME" {
     type master;
-    file "/etc/bind/db.storeworld.com";
+    file "/etc/bind/db.$URLNAME";
 };
 EOF
 
-cat << EOF > /etc/bind/db.storeworld.com
+cat << EOF > /etc/bind/db.$URLNAME
 \$TTL    604800
-@       IN      SOA     ns1.storeworld.com. admin.storeworld.com. (
+@       IN      SOA     ns1.$URLNAME. admin.$URLNAME. (
                               2         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
 ;
-@       IN      NS      ns1.storeworld.com.
+@       IN      NS      ns1.$URLNAME.
 @       IN      A       $STATIC_IP
 www     IN      A       $STATIC_IP
 ns1     IN      A       $STATIC_IP
@@ -80,7 +81,7 @@ EOF
 cat << EOF > /etc/systemd/resolved.conf
 [Resolve]
 DNS=$STATIC_IP
-Domains=~storeworld.com
+Domains=~$URLNAME
 EOF
 
 systemctl restart systemd-resolved
@@ -93,6 +94,6 @@ else
     journalctl -xe --no-pager | tail -n 50
 fi
 
-echo "Configuración completada. La dirección IP estática es $STATIC_IP y el dominio www.storeworld.com ha sido configurado."
+echo "Configuración completada. La dirección IP estática es $STATIC_IP y el dominio www.$URLNAME ha sido configurado."
 echo "Script by MisterLinux - ¡Disfruta tu nuevo servidor DNS configurado en VirtualBox!"
-echo "Prueba la resolución con: nslookup www.storeworld.com $STATIC_IP"
+echo "Prueba la resolución con: nslookup www.$URLNAME $STATIC_IP"
