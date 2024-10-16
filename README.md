@@ -8,35 +8,53 @@ Este script automatiza la configuración de un servidor DNS en Ubuntu, convirtie
 - Configuración de DNS utilizando la IP estática
 - Compatible con máquinas virtuales y servidores físicos
 - Proceso guiado paso a paso
+- Configuración automática de registros A, NS y SOA
 
 ## Requisitos previos
 
-- Ubuntu Server (probado en versiones 18.04 LTS y posteriores)
+- Ubuntu Server (probado en versiones 24.04 LTS y posteriores)
 - Acceso root o privilegios sudo
 - Conexión a Internet activa
 
-## Instrucciones de uso
+### Herramientas necesarias
 
-### 1. Obtener la IP actual
-
-Antes de ejecutar el script, identifica tu IP actual:
+Antes de comenzar, asegúrate de tener instaladas las siguientes herramientas:
 
 ```bash
-ip addr show
+sudo apt update
+sudo apt install git net-tools -y
+```
+
+## Instrucciones de uso
+
+### 1. Clonar el repositorio
+
+Primero, clona el repositorio del proyecto:
+
+```bash
+git clone https://github.com/EzequielMisterLinux/auto-install-dns-ubuntu-server.git
+cd auto-install-dns-ubuntu-server
+```
+
+### 2. Obtener la IP actual
+
+Identifica tu IP actual y la interfaz de red en uso:
+
+```bash
+ifconfig
 ```
 
 Busca la interfaz en uso (ej. `eth0`, `enp0s3`) y anota la dirección IP (`inet`).
 
-### 2. Preparar el script
+### 3. Preparar el script
 
-Descarga el script y asigna permisos de ejecución:
+Asigna permisos de ejecución al script:
 
 ```bash
-wget https://raw.githubusercontent.com/tuusuario/autodns/main/autodns.sh
 chmod +x autodns.sh
 ```
 
-### 3. Ejecutar el script
+### 4. Ejecutar el script
 
 Inicia el script con privilegios de superusuario:
 
@@ -45,10 +63,15 @@ sudo ./autodns.sh
 ```
 
 Sigue las instrucciones en pantalla:
-- Ingresa la IP actual que obtuviste en el paso 1
+- Ingresa la IP actual que obtuviste en el paso 2
 - Proporciona el nombre de dominio deseado (ej. `tudominio.com`)
 
-### 4. Verificar la configuración
+El script realizará las siguientes acciones:
+- Convertirá la IP ingresada en una IP estática
+- Configurará el DNS usando la IP estática
+- Creará los registros A, NS y SOA necesarios
+
+### 5. Verificar la configuración
 
 Una vez completada la instalación, verifica la configuración del DNS:
 
@@ -69,7 +92,12 @@ Si encuentras algún problema durante la instalación o configuración, verifica
 1. Que tienes privilegios de superusuario
 2. La conexión a Internet está activa
 3. No hay conflictos con configuraciones DNS existentes
+4. Los puertos necesarios (53 UDP/TCP) están abiertos en el firewall
 
+Para problemas específicos:
+
+- **Error al convertir IP a estática**: Verifica que la información de red es correcta en `/etc/netplan/`.
+- **Problemas con los registros DNS**: Revisa la configuración en `/etc/bind/` y asegúrate de que el servicio bind9 está activo.
 
 
 ---
